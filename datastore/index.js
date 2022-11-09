@@ -18,7 +18,7 @@ exports.create = (text, callback) => {
         throw new Error('ERROR')
       } else {
         //console.log('TEXT', text);
-        callback(null, { id:data, text:text });
+        callback(null, { id: data, text: text });
       }
     })
   })
@@ -29,13 +29,13 @@ exports.readAll = (callback) => {
   //console.log('items', items);
   //readdir
   fs.readdir(exports.dataDir, (err, files) => {
-  //console.log(path.join(exports.dataDir, `.txt`))
+    //console.log(path.join(exports.dataDir, `.txt`))
     if (err) {
       throw new Error('ERROR');
     } else {
       //var array = [];
       var data = _.map(files, (file) => {
-        console.log('FILES', files); // Output: [ '00001.txt', '00002.txt' ]
+        //console.log('FILES', files); // Output: [ '00001.txt', '00002.txt' ]
         // console.log('FILES', fs.readFile(file, callback)); // Output: [ '00001.txt', '00002.txt' ]
         // expected { 'id' : '00001', 'text': 'todo 1'}
         var input = file.split('.')[0]
@@ -50,12 +50,18 @@ exports.readAll = (callback) => {
 };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+
+  var path = `${exports.dataDir}/${id}.txt`;
+  // console.log('PATH', path);
+  // fs.readdir(exports.dataDir, (err, files) => {
+  fs.readFile(path, (err, data) => {
+    if (err || parseInt(id) === NaN) {
+      //throw new Error('ERROR');
+      callback(new Error ('ERROR'));
+    } else {
+      callback(null, { id, text: data.toString() });
+    }
+  });
 };
 
 exports.update = (id, text, callback) => {
