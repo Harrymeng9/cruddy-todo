@@ -25,10 +25,28 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
-  });
-  callback(null, data);
+
+  //console.log('items', items);
+  //readdir
+  fs.readdir(exports.dataDir, (err, files) => {
+  //console.log(path.join(exports.dataDir, `.txt`))
+    if (err) {
+      throw new Error('ERROR');
+    } else {
+      //var array = [];
+      var data = _.map(files, (file) => {
+        console.log('FILES', files); // Output: [ '00001.txt', '00002.txt' ]
+        // console.log('FILES', fs.readFile(file, callback)); // Output: [ '00001.txt', '00002.txt' ]
+        // expected { 'id' : '00001', 'text': 'todo 1'}
+        var input = file.split('.')[0]
+        var fileSave = { id: input, text: input }
+        //array.push({id, text});
+        return fileSave;
+        // return { id, text };
+      });
+      callback(null, data);
+    }
+  })
 };
 
 exports.readOne = (id, callback) => {
