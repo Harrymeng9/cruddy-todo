@@ -39,20 +39,30 @@ const writeCounter = (count, callback) => {
 // Public API - Fix this function //////////////////////////////////////////////
 
 exports.getNextUniqueId = (callback) => {
-  counter = counter + 1;
+  //counter = counter + 1;
   // writeCounter(counter, callback);
   // counter = readCounter(callback);
   //try adding writeCounter into the function below
   //create anonymous function first and check for error
-  readCounter((err, id) => {
+
+  // var test = readCounter( .   );
+
+  readCounter((err, counter) => {
     if (err) {
-      throw ('error detected');
-      // callback(null,0);
+      console.log(err, 'error detected');
+      callback(null, 0);
     } else {
-      callback(null, id);
+      writeCounter(counter + 1, function (err) {
+        if (err) {
+          console.log(err, 'error detected');
+        } else {
+          callback(null, zeroPaddedNumber(counter + 1));
+        }
+      })
+      //callback(null, id);
     }
   })
-  return zeroPaddedNumber(counter);
+  //return zeroPaddedNumber(counter);
 };
 
 
