@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
+const fsPromised = Promise.promisifyAll(fs);
 
 var items = {};
 
@@ -20,20 +22,30 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
+  //Promisify the entire library (they gave us a hint in GLearn and live lesson);
+  //after the library has been promisified, then we can create a seperate call to
+  //the library functions asynchonously
 
-  fs.readdir(exports.dataDir, (err, files) => {
-    if (err) {
-      throw new Error('ERROR');
-    } else {
+  return fsPromised.readdirAsync(exports.dataDir)
+    .then((files) => {
       var data = _.map(files, (file) => {
-        var input = file.split('.')[0];
-        var fileSave = { id: input, text: input };
-        return fileSave;
-      });
-      callback(null, data);
-    }
-  })
-};
+        // console.log('FILE', file);
+        var id = file.split('.')[0];
+        //this accesses the text in the file
+        return fsPromised.readFileAsync(path.join(exports.dataDir, file), 'utf8')
+        .then((text) => {
+          return {id:id, text:text};
+        })
+
+      })
+      Promise.all(data).then((data) => {
+        callback(null, data);
+      })
+    })
+    .catch((err) => {
+      callback(err);
+    })
+  };
 
 exports.readOne = (id, callback) => {
 
@@ -77,6 +89,9 @@ exports.delete = (id, callback) => {
     }
   });
 };
+
+var readSync = Promise.promisify(exports.readAll);
+//Promise.all([exports.create, exports.readAll, exports.readOne, exports.update, exports.delete]);
 
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
 
